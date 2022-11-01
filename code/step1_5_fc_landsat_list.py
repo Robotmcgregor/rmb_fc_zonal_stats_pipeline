@@ -54,7 +54,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-def append_geo_df_fn(comp_geo_df_52, comp_geo_df_53, export_dir_path):
+def append_geo_df_fn(comp_geo_df_52, comp_geo_df_53, comp_geo_df_54, export_dir_path):
     """ Concatenate previously separated projected 1ha sites to a single geo-DataFrame and re-project to
     geographics GDA94.
 
@@ -68,10 +68,12 @@ def append_geo_df_fn(comp_geo_df_52, comp_geo_df_53, export_dir_path):
     # Add a feature: crs, to each projected geoDataFrame and fill with a projection string variable.
     geo_df_gda941 = comp_geo_df_52['crs'] = 'WGSz52'
     geo_df_gda942 = comp_geo_df_53['crs'] = 'WGSz53'
+    geo_df_gda944 = comp_geo_df_54['crs'] = 'WGSz54'
 
     # Project both geoDataFrames to geographic GDA94.
     geo_df_gda941 = comp_geo_df_52.to_crs(epsg=4283)
     geo_df_gda942 = comp_geo_df_53.to_crs(epsg=4283)
+    geo_df_gda944 = comp_geo_df_54.to_crs(epsg=4284)
 
     # Append/concatenate both geoDataFrames into one.
     geo_df = geo_df_gda941.append(geo_df_gda942)
@@ -105,7 +107,7 @@ def unique_values_fn(geo_df):
     return list_tile_unique
 
 
-def list_file_directory_fn(landsat_tile_dir, image_search_criteria1, image_search_criteria2):
+def list_file_directory_fn(landsat_tile_dir, image_search_criteria1, image_search_criteria2, image_search_criteria4):
     """ Create an empty list to store the Landsat image file path for images that meet the search criteria
     (image_search_criteria1 and image_search_criteria2).
     @param landsat_tile_dir:
@@ -123,7 +125,7 @@ def list_file_directory_fn(landsat_tile_dir, image_search_criteria1, image_searc
         for file in files:
             #print('file: ', file)
             # Search for files ending with the string value stored in the object variable: imageSearchCriteria.
-            if file.endswith(image_search_criteria1) or file.endswith(image_search_criteria2):
+            if file.endswith(image_search_criteria1) or file.endswith(image_search_criteria2) or file.endswith(image_search_criteria4):
                 # Concatenate the root and file names to create a file path.
                 image_path = (os.path.join(root, file))
                 #print('image_path: ', image_path)
@@ -133,8 +135,8 @@ def list_file_directory_fn(landsat_tile_dir, image_search_criteria1, image_searc
     return list_landsat_tile_path
 
 
-def create_csv_list_of_paths_fn(list_tile_unique, landsat_dir, image_search_criteria1, image_search_criteria2, fc_count,
-                                tile_status_dir):
+def create_csv_list_of_paths_fn(list_tile_unique, landsat_dir, image_search_criteria1, image_search_criteria2,
+                                image_search_criteria4, fc_count, tile_status_dir):
     """ Determine which Landsat Tiles have a sufficient amount of images to process.
 
     @param list_tile_unique: list object containing the path to all landsat images matching either search criteria.
@@ -160,7 +162,7 @@ def create_csv_list_of_paths_fn(list_tile_unique, landsat_dir, image_search_crit
         print('landsat_tile_dir: ', landsat_tile_dir)
         # Run the list_file_directory_fn function.
         list_landsat_tile_path = list_file_directory_fn(landsat_tile_dir, image_search_criteria1,
-                                                        image_search_criteria2)
+                                                        image_search_criteria2, image_search_criteria4)
 
         # Calculate the number of image pathways stored in the list_landsat_tile_path variable.
         fc_length = (len(list_landsat_tile_path))
@@ -208,8 +210,8 @@ def create_csv_list_of_paths_fn(list_tile_unique, landsat_dir, image_search_crit
     return list_sufficient
 
 
-def main_routine(export_dir_path, comp_geo_df52, comp_geo_df53, fc_count, landsat_dir, image_search_criteria1,
-                 image_search_criteria2):
+def main_routine(export_dir_path, comp_geo_df52, comp_geo_df53, comp_geo_df54, fc_count, landsat_dir, image_search_criteria1,
+                 image_search_criteria2, image_search_criteria4):
 
     # define the tile_status_dir path
     tile_status_dir = (export_dir_path + '\\tile_status')
@@ -217,7 +219,7 @@ def main_routine(export_dir_path, comp_geo_df52, comp_geo_df53, fc_count, landsa
 
     # Call the append_geo_df_fn function to concatenate previously separated projected 1ha sites to a single
     # geo-dataframe and re-project to geographic GDA94.
-    geo_df = append_geo_df_fn(comp_geo_df52, comp_geo_df53, export_dir_path)
+    geo_df = append_geo_df_fn(comp_geo_df52, comp_geo_df53, comp_geo_df54, export_dir_path)
 
     # Call the unique_values_fn function to create a list of unique Landsat tiles that overlay with a 1ha site
     # - name restructured from geo-dataframe.
@@ -226,7 +228,7 @@ def main_routine(export_dir_path, comp_geo_df52, comp_geo_df53, fc_count, landsa
     # call the create_csv_list_of_paths_fn function to determine which Landsat Tiles have a sufficient amount of
     # images to process.
     list_sufficient = create_csv_list_of_paths_fn(list_tile_unique, landsat_dir, image_search_criteria1,
-                                                  image_search_criteria2,
+                                                  image_search_criteria2, image_search_criteria4,
                                                   fc_count, tile_status_dir)
 
     return list_sufficient

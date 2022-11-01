@@ -78,18 +78,21 @@ def project_tile_grid_fn(tile_grid, prime_temp_grid_dir):
     # read in Landsat tile grid vector dataset
     tile_grid = gpd.read_file(tile_grid)
     # subset dataset into WGSz52 and WGSz53
-    tile_grid_53_selection = tile_grid.loc[(tile_grid['WRSPR'] <= 104_073) & (tile_grid['WRSPR'] != 103_078)]
+    tile_grid_54_selection = tile_grid.loc[tile_grid['WRSPR'] == 100_074]
+    tile_grid_53_selection = tile_grid.loc[(tile_grid['WRSPR'] <= 104_073) & ((tile_grid['WRSPR'] != 103_078) |(tile_grid['WRSPR'] != 100_074))]
     tile_grid_52_selection = tile_grid.loc[(tile_grid['WRSPR'] >= 104_072) | (tile_grid['WRSPR'] == 103_078)]
 
     # project subsets into crs
     tile_grid_wgs52 = tile_grid_52_selection.to_crs(epsg=32752)
     tile_grid_wgs53 = tile_grid_53_selection.to_crs(epsg=32753)
+    tile_grid_wgs54 = tile_grid_53_selection.to_crs(epsg=32754)
 
-    # export shapefiles  
+    # export shapefiles
     tile_grid_wgs52.to_file(driver='ESRI Shapefile', filename=proj_tile_grid_sep_dir + '\\tile_grid_wgs52.shp')
     tile_grid_wgs53.to_file(driver='ESRI Shapefile', filename=proj_tile_grid_sep_dir + '\\tileGridWgs53.shp')
+    tile_grid_wgs54.to_file(driver='ESRI Shapefile', filename=proj_tile_grid_sep_dir + '\\tileGridWgs54.shp')
 
-    return tile_grid_wgs52, tile_grid_wgs53
+    return tile_grid_wgs52, tile_grid_wgs53, tile_grid_wgs54
 
 
 def negative_buffer_fn(projected_df, prime_temp_grid_dir, crs_name):
@@ -229,13 +232,13 @@ def concatenate_tile_df_fn(zonal_stats_ready_dir, identify_tile_grid_temp_dir, p
     return comp_geo_df
 
 
-def main_routine(tile_grid, geo_df52, geo_df53, prime_temp_grid_dir):
+def main_routine(tile_grid, geo_df52, geo_df53, geo_df54, prime_temp_grid_dir):
 
     # define the zonal_stats_ready_dir path
     zonal_stats_ready_dir = prime_temp_grid_dir + '\\zonal_stats_ready'
 
     # call the project_tile_grid_fn function.
-    tile_grid_wgs52, tile_grid_wgs53 = project_tile_grid_fn(tile_grid, prime_temp_grid_dir)
+    tile_grid_wgs52, tile_grid_wgs53, tile_grid_wgs54 = project_tile_grid_fn(tile_grid, prime_temp_grid_dir)
 
     # ------------------------------------------ tile_grid_wgs52 -------------------------------------------------------
 
@@ -273,8 +276,25 @@ def main_routine(tile_grid, geo_df52, geo_df53, prime_temp_grid_dir):
     comp_geo_df53 = concatenate_tile_df_fn(zonal_stats_ready_dir, identify_tile_grid_temp_dir, prime_temp_grid_dir,
                                            crs_name)
 
+    # -------------------------------------------- tile_grid_wgs54 -----------------------------------------------------
 
-    return comp_geo_df52, comp_geo_df53, zonal_stats_ready_dir
+    projected_df = tile_grid_wgs54
+    crs_name = 'WGS84z54'
+    # call the negative_buffer_fn function.
+    tile_grid_temp_dir, crs_name = negative_buffer_fn(projected_df, prime_temp_grid_dir, crs_name)
+    # set the odk_geo1ha_df variable to geo_df53
+    odk_geo1ha_df = geo_df54
+    # call the concatenate_df_fn function.
+    comp_tile_geo_df, concat_tile_grid_temp_dir, crs_name = concatenate_df_fn(prime_temp_grid_dir, tile_grid_temp_dir,
+                                                                              crs_name)
+    # call the identifyDF function.
+    identify_tile_grid_temp_dir = identity_df_fn(tile_grid_temp_dir, prime_temp_grid_dir, odk_geo1ha_df, crs_name)
+    # call the concatenate_tile_df_fn function.
+    comp_geo_df54 = concatenate_tile_df_fn(zonal_stats_ready_dir, identify_tile_grid_temp_dir, prime_temp_grid_dir,
+                                           crs_name)
+
+
+    return comp_geo_df52, comp_geo_df53, comp_geo_df54, zonal_stats_ready_dir
 
 
 if __name__ == "__main__":
