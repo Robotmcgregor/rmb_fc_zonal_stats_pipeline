@@ -85,12 +85,12 @@ def project_tile_grid_fn(tile_grid, prime_temp_grid_dir):
     # project subsets into crs
     tile_grid_wgs52 = tile_grid_52_selection.to_crs(epsg=32752)
     tile_grid_wgs53 = tile_grid_53_selection.to_crs(epsg=32753)
-    tile_grid_wgs54 = tile_grid_53_selection.to_crs(epsg=32754)
+    tile_grid_wgs54 = tile_grid_54_selection.to_crs(epsg=32754)
 
     # export shapefiles
     tile_grid_wgs52.to_file(driver='ESRI Shapefile', filename=proj_tile_grid_sep_dir + '\\tile_grid_wgs52.shp')
-    tile_grid_wgs53.to_file(driver='ESRI Shapefile', filename=proj_tile_grid_sep_dir + '\\tileGridWgs53.shp')
-    tile_grid_wgs54.to_file(driver='ESRI Shapefile', filename=proj_tile_grid_sep_dir + '\\tileGridWgs54.shp')
+    tile_grid_wgs53.to_file(driver='ESRI Shapefile', filename=proj_tile_grid_sep_dir + '\\tile_grid_wgs53.shp')
+    tile_grid_wgs54.to_file(driver='ESRI Shapefile', filename=proj_tile_grid_sep_dir + '\\tile_grid_wgs54.shp')
 
     return tile_grid_wgs52, tile_grid_wgs53, tile_grid_wgs54
 
@@ -208,6 +208,7 @@ def concatenate_tile_df_fn(zonal_stats_ready_dir, identify_tile_grid_temp_dir, p
     list_identify_zone = []
 
     for file in glob.glob(identify_tile_grid_temp_dir + "\\*" + crs_name + ".shp"):
+        #print("file: ", file)
         # append the open geo_df to a list.
         geo_df = gpd.read_file(file)
         clean_tile = file[-28:-22]
@@ -219,12 +220,15 @@ def concatenate_tile_df_fn(zonal_stats_ready_dir, identify_tile_grid_temp_dir, p
         comp_geo_df = geo_df1.dropna(axis=0, subset=['FID_2'])
         comp_geo_df.rename(columns={"TILE": "tile"}, errors="raise", inplace=True)
 
+
         for i in comp_geo_df.tile.unique():
+
             site_tile_df = comp_geo_df.loc[comp_geo_df.tile == i]
             site_tile_df2 = site_tile_df[['site_name', 'prop_name', 'prop_code', 'site_date', 'tile', 'geometry']]
             site_tile_df2.reset_index(drop=True, inplace=True)
             site_tile_df2['uid'] = site_tile_df2.index + 1
             site_tile_df2.to_file(zonal_stats_ready_dir + '\\' + str(i) + '_ODK_by_tile.shp')
+
     else:
         sys.exit(1)
         comp_geo_df = None
@@ -233,6 +237,7 @@ def concatenate_tile_df_fn(zonal_stats_ready_dir, identify_tile_grid_temp_dir, p
 
 
 def main_routine(tile_grid, geo_df52, geo_df53, geo_df54, prime_temp_grid_dir):
+
 
     # define the zonal_stats_ready_dir path
     zonal_stats_ready_dir = prime_temp_grid_dir + '\\zonal_stats_ready'
@@ -292,7 +297,6 @@ def main_routine(tile_grid, geo_df52, geo_df53, geo_df54, prime_temp_grid_dir):
     # call the concatenate_tile_df_fn function.
     comp_geo_df54 = concatenate_tile_df_fn(zonal_stats_ready_dir, identify_tile_grid_temp_dir, prime_temp_grid_dir,
                                            crs_name)
-
 
     return comp_geo_df52, comp_geo_df53, comp_geo_df54, zonal_stats_ready_dir
 

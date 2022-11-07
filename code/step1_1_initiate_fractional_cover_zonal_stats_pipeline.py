@@ -352,10 +352,6 @@ def main_routine():
     end_date = cmd_args.end_date
     pastoral_districts_dir = cmd_args.pastoral_districts_dir
 
-    # print("Zonal stats pipeline is offline, please contact Chris Obst if you have any questions regarding this matter.")
-    # import sys
-    # sys.esit()
-
     print("This pipeline is set to work on the new FC files (dp0)")
 
     # call the temporaryDir function.
@@ -387,6 +383,7 @@ def main_routine():
     list_sufficient = step1_5_fc_landsat_list.main_routine(
         export_dir_path, comp_geo_df52, comp_geo_df53, comp_geo_df54, fc_count, landsat_dir, image_search_criteria1,
         image_search_criteria2, image_search_criteria4)
+
 
     # define the tile for processing directory.
     tile_for_processing_dir = (tile_status_dir + '\\for_processing')

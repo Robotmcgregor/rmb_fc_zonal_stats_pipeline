@@ -95,6 +95,8 @@ def apply_zonal_stats_fn(image_s, no_data, band, shape, uid):
             zs = zonal_stats(src, array, affine=affine, nodata=no_data,
                              stats=['count', 'min', 'max', 'mean', 'median', 'std'], all_touched=False)
 
+
+            print("zs: ", zs)
             # extract image name and append to list
             img_name = str(srci)[-54:-11]
             list_image_name.append(img_name)
@@ -221,6 +223,7 @@ def main_routine(temp_dir_path, zonal_stats_ready_dir, no_data, tile, zonal_stat
     print('......')
 
     odk_shapefile = zonal_stats_ready_dir + '\\' + complete_tile + '_odk_by_tile.shp'
+    print("odk_shapefile: ", odk_shapefile)
     df = gpd.read_file(odk_shapefile)
 
     shape = odk_shapefile

@@ -265,9 +265,9 @@ def main_routine(zonal_dir, export_dir, rainfall_dir, end_date, rainfall_raster_
         complete_tile = test_tile[-3]
         output_zonal_stats = pd.read_csv(tile)
 
-        # import step2_2_bare_ground_plots
-        # step2_2_bare_ground_plots.main_routine(output_zonal_stats, output_rainfall, complete_tile, previous_visits,
-        #                                        plot_dir, rolling_mean, finish_date)
+        import step2_2_bare_ground_plots
+        step2_2_bare_ground_plots.main_routine(output_zonal_stats, output_rainfall, complete_tile, previous_visits,
+                                               plot_dir, rolling_mean, finish_date)
 
         import step2_3_interactive_plots
         step2_3_interactive_plots.main_routine(export_dir_path, output_zonal_stats, complete_tile,
@@ -276,9 +276,9 @@ def main_routine(zonal_dir, export_dir, rainfall_dir, end_date, rainfall_raster_
     import step2_4_sort_plots
     step2_4_sort_plots.main_routine(export_dir_path, zonal_dir)
 
-    import step2_5_file_plots_to_working_drive
-    step2_5_file_plots_to_working_drive.main_routine(pastoral_districts_dir, export_dir_path, zonal_dir, rainfall_dir,
-                                                     finish_date, prop_dist_dict, prop_tag_dict, zonal_stats_ready_dir)
+    # import step2_5_file_plots_to_working_drive
+    # step2_5_file_plots_to_working_drive.main_routine(pastoral_districts_dir, export_dir_path, zonal_dir, rainfall_dir,
+    #                                                  finish_date, prop_dist_dict, prop_tag_dict, zonal_stats_ready_dir)
 
     print('Zonal stats and plots have been created!!.'
           'The zonal stats pipeline has finished.')

@@ -65,21 +65,24 @@ def append_geo_df_fn(comp_geo_df_52, comp_geo_df_53, comp_geo_df_54, export_dir_
     @param export_dir_path: string object containing the path to the export directory.
     @return geo_df: geo-dataframe containing all inputs projected in GDA94 geographics.
     """
-    # Add a feature: crs, to each projected geoDataFrame and fill with a projection string variable.
-    geo_df_gda941 = comp_geo_df_52['crs'] = 'WGSz52'
-    geo_df_gda942 = comp_geo_df_53['crs'] = 'WGSz53'
-    geo_df_gda944 = comp_geo_df_54['crs'] = 'WGSz54'
 
-    # Project both geoDataFrames to geographic GDA94.
-    geo_df_gda941 = comp_geo_df_52.to_crs(epsg=4283)
-    geo_df_gda942 = comp_geo_df_53.to_crs(epsg=4283)
-    geo_df_gda944 = comp_geo_df_54.to_crs(epsg=4284)
+    # Add a feature: crs, to each projected geoDataFrame and fill with a projection string variable.
+    comp_geo_df_52['crs'] = 'WGSz52'
+    comp_geo_df_53['crs'] = 'WGSz53'
+    comp_geo_df_54['crs'] = 'WGSz54'
+
+    # Project all geoDataFrames to geographic GDA94.
+    geo_df_gda94_52 = comp_geo_df_52.to_crs(epsg=4283)
+    geo_df_gda94_53 = comp_geo_df_53.to_crs(epsg=4283)
+    geo_df_gda94_54 = comp_geo_df_54.to_crs(epsg=4283)
 
     # Append/concatenate both geoDataFrames into one.
-    geo_df = geo_df_gda941.append(geo_df_gda942)
+    geo_df = geo_df_gda94_52.append([geo_df_gda94_53, geo_df_gda94_54])
 
     # Export geoDataFrame to the export directory (command argument).
     geo_df.to_file(driver='ESRI Shapefile', filename=export_dir_path + '\\' + 'landsat_tile_site_identity_gda94.shp')
+    print("output geo_df to: ", export_dir_path + '\\' + 'landsat_tile_site_identity_gda94.shp')
+
 
     return geo_df
 

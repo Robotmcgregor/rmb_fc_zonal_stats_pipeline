@@ -498,6 +498,7 @@ def main_routine(directory_odk, export_dir_path, prime_temp_buffer_dir, pastoral
     list_input = list_ras
 
     if len(list_input) >= 2:
+        print("list input >= 2 triggered")
 
         # run concatenate_df_list_fn function - input = list_input - output = integrated_df.
 
@@ -580,6 +581,7 @@ def main_routine(directory_odk, export_dir_path, prime_temp_buffer_dir, pastoral
 
 
     elif len(list_input) == 1:
+        print("list input == 1 triggered")
 
         ras_df = single_csv_fn(list_input)
         # rename two column headers so that both the integrated_df and ras_df columns are the
@@ -659,6 +661,8 @@ def main_routine(directory_odk, export_dir_path, prime_temp_buffer_dir, pastoral
 
 
     else:
+        print("list_len else triggered")
+        print("len list input: ", len(list_input))
         pass
         # todo uncomment if time trace for ras is useful
         # print('There are no ras sites to be processed.')
