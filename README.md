@@ -2,7 +2,6 @@
 
 # RMB Fractional Cover Zonal Statistics Pipeline
 
-
 **Pipeline description**: This pipeline comprises 12 scripts which read in the star_transect csv produced by the 
 RMB_obs_ras_sheet_pipeline. The pipeline creates a 1ha plot around each of the site point data, determines which 
 Landsat tiles the point datasets overlay and produces fractional cover (fc) zonal statistics on each overlaying Landsat tile.
@@ -10,17 +9,8 @@ Additionally, this pipeline extracts monthly rainfall zonal statistics from SILO
 Furthermore, this pipeline produces static and integrated time series plots per site, if site overlays multiple Landsat 
 tiles, the tile with the most amount of non-null single date available data will be exported to the working drive.
 
-
 **IMPORTANT**: This pipeline can be run on your local computer; however, regional teams (Katherine and Alice Springs) 
 should utilise the remote desktop due to file transfer speeds (i.e. a priority should be given to regional teams).
-
-Pipeline Description: Description: This pipeline comprises of 11 scripts which read in the AGB biomass csv. Pipeline 
-converts data to  geo-dataframe and created a 1ha polygon (site) for each point. Once this is complete the pipeline 
-runs zonal statistics on the current Landsat mosaic and exports a csv per site into an outputs directory. 
-
-**Note:** Seasonal composites can be 6 band, 3 band, greyscale and classified.
-Once pipeline is complete a temporary directory which was created will be deleted from the working drive, 
-if script fails the temporary directory requires manual deletion.
 
 
 | File Name | date range | Definition | Band Comp | Data Type | Current|
@@ -35,7 +25,6 @@ if script fails the temporary directory requires manual deletion.
 - **Output 3**: GDA94 point shapefile.
 - **Output 4**: WGSz52 1ha polygon shapefile.
 - **Output 4**: WGSz53 1ha polygon shapefile.
-
 
 ## Parameters
 
