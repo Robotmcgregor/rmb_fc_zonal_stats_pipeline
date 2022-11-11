@@ -293,7 +293,7 @@ def plot_bare_ground_fn(lsat_npv, values, date, rain, integrated, complete_tile,
 
     # Add the current years inspection date.
 
-    plt.axvline(x=pd.Timestamp(s_date), color='dimgrey', linestyle='--')
+    #plt.axvline(x=pd.Timestamp(s_date), color='dimgrey', linestyle='--')
 
     # Add previous dates from the star transect shapefile.
     integrated_site = integrated.loc[integrated['siteTitle'] == i]
@@ -396,7 +396,7 @@ def plot_all_bands_fn(lsat_npv, date, rain, values_bg, values_pv, values_npv, in
 
     fig.autofmt_xdate()
 
-    plt.axvline(x=pd.Timestamp(s_date), color='dimgrey', linestyle='--')
+    #plt.axvline(x=pd.Timestamp(s_date), color='dimgrey', linestyle='--')
     plt.xticks(fontsize=20)
     plt.yticks(fontsize=20)
 
@@ -473,8 +473,8 @@ def main_routine(output_zonal_stats, output_rainfall, complete_tile, previous_vi
         # read in the rainfall stats and covert them to total mm
         site_sort = site_s.sort_values(['Date'])
         date = pd.Series(site_sort['Date']).apply(pd.to_datetime)
-        rain = site_sort['mean'] #/ 10
-        #todo just removed /10
+        rain = site_sort['mean'] # old rainfall (img not tif) / 10
+
 
         values_bg, date_fit_bg = b1_fn(output_zonal_stats, i, rolling_mean)
         values_pv, date_fit_pv = b2_fn(output_zonal_stats, i, rolling_mean)

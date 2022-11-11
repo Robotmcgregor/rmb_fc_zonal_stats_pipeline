@@ -414,14 +414,14 @@ def main_routine():
     # --------------------------------------------------- Plots -----------------------------------------------------
 
     """#os.chdir(r'Z:\Scratch\Rob\code\draft\PycharmProjects\fractonal_cover_time_series_plots')
-    cmd = "E:\\DENR\\code\\rangeland_monitoring\\fractional_cover_zonal_stats_pipeline\\code\\step2_1_initiate_zonal_stats_plot_pipeline.py --directory_zonal %s --export_dir %s --rainfall_dir %s --end_date %s --rainfall_raster_dir %s --visits %s --pastoral_estate %s --rolling_mean %s --pastoral_districts_dir %s" % (zonal_stats_output_dir, export_dir_path, rainfall_output_dir, end_date, rainfall_dir, previous_visits, pastoral_estate, rolling_mean, pastoral_districts_dir)
+    cmd = "E:\\DENR\\code\\rangeland_monitoring\\fractional_cover_zonal_stats_pipeline\\code\\step2_1_initiate_zonal_stats_plot_pipeline_independent.py --directory_zonal %s --export_dir %s --rainfall_dir %s --end_date %s --rainfall_raster_dir %s --visits %s --pastoral_estate %s --rolling_mean %s --pastoral_districts_dir %s" % (zonal_stats_output_dir, export_dir_path, rainfall_output_dir, end_date, rainfall_dir, previous_visits, pastoral_estate, rolling_mean, pastoral_districts_dir)
     os.system(cmd)"""
 
     import step2_1_initiate_zonal_stats_plot_pipeline
     step2_1_initiate_zonal_stats_plot_pipeline.main_routine(zonal_stats_output_dir, export_dir_path,
-                                                            rainfall_output_dir,
-                                                            end_date, rainfall_dir, previous_visits, pastoral_estate,
-                                                            rolling_mean, pastoral_districts_dir, zonal_stats_ready_dir)
+                                                                        rainfall_output_dir,
+                                                                        end_date, rainfall_dir, previous_visits, pastoral_estate,
+                                                                        rolling_mean, pastoral_districts_dir, zonal_stats_ready_dir)
 
     """import step2_1_initiate_zonal_stats_plot_pipeline
     step2_1_initiate_zonal_stats_plot_pipeline.main_routine(export_dir_path, previous_visits, pastoral_estate, rolling_mean, rainfall_dir,
