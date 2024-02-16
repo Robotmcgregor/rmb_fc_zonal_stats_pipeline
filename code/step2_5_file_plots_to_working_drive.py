@@ -84,6 +84,7 @@ def glob_dir_fn(zonal_dir, export_dir, prop_output, file_end, prop_list, year):
 
             site_df = df.loc[df['prop_name'] == prop]
             file_output = '{0}\\{1}_{2}{3}.csv'.format(ind_prop_output, str(prop), str(tile_), file_end)
+            print("Output: ", file_output)
             site_df.to_csv(file_output)
 
             matching_path = [s for s in prop_list if prop in s]
@@ -94,7 +95,7 @@ def glob_dir_fn(zonal_dir, export_dir, prop_output, file_end, prop_list, year):
             year_dir_path = create_sub_directories_fn(str(year), dest_prop_path)
             raw_year_dir_path = create_sub_directories_fn('Raw', year_dir_path)
             file_output = '{0}\\{1}_{2}{3}.csv'.format(raw_year_dir_path, str(prop), str(tile_), file_end)
-
+            print("Output: ", file_output)
             site_df.to_csv(file_output)
 
     return prop_dir_path
@@ -123,6 +124,7 @@ def glob_rainfall_dir_fn(rainfall_dir, export_dir, prop_output, file_end, prop_l
             _, year = site_date.rsplit('.', 1)
 
             file_output = '{0}\\{1}_{2}{3}.csv'.format(ind_prop_output, str(prop), str(tile_name), file_end)
+            print("Output: ", file_output)
             site_df.to_csv(file_output)
 
             matching_path = [s for s in prop_list if prop in s]
@@ -132,6 +134,7 @@ def glob_rainfall_dir_fn(rainfall_dir, export_dir, prop_output, file_end, prop_l
             year_dir_path = create_sub_directories_fn(str(year), dest_prop_path)
             raw_year_dir_path = create_sub_directories_fn('Raw', year_dir_path)
             file_output = '{0}\\{1}_{2}{3}.csv'.format(raw_year_dir_path, str(prop), str(tile_name), file_end)
+            print("Output: ", file_output)
             site_df.to_csv(file_output)
 
 
@@ -163,8 +166,12 @@ def property_path_fn(pastoral_districts_dir, prop_dist_dict, prop_tag_dict):
 def glob_plot_dir_fn(export_dir, search_criteria, year, folder_, folder_name, prop_dir_path):
     """ ."""
 
+    print("searching in: ", export_dir, folder_, search_criteria)
+
     for file_path in glob.glob('{0}\\{1}\\{2}'.format(export_dir, folder_, search_criteria)):
-        # print('file_path: ', file_path)
+        print('located: ', file_path)
+
+        _, file_name = os.path.split(file_path)
 
         dest_prop_path = os.path.join(prop_dir_path, 'Data', 'Rs_Outputs', 'Time_Trace')
         # print('dest_prop_path: ', dest_prop_path)
@@ -173,6 +180,7 @@ def glob_plot_dir_fn(export_dir, search_criteria, year, folder_, folder_name, pr
         raw_year_dir_path = create_sub_directories_fn('Raw', year_dir_path)
         final_dir_path = create_sub_directories_fn(folder_name, raw_year_dir_path)
         shutil.copy(file_path, final_dir_path)
+        print("Output: ", os.path.join(final_dir_path, file_name))
 
 
 def assets_search_fn(search_criteria, folder):
@@ -229,11 +237,16 @@ def glob_dir_1_ha_fn(ha_directory, prop_list, year):
         output_path = create_sub_directories_fn('Shp', year_path)
 
         file_output = '{0}\\{1}_1ha_plot_gda94.shp'.format(output_path, str(prop_final))
+        print("Output: ", file_output)
         prop_gdf.to_file(file_output, driver="ESRI Shapefile")
 
 
 def main_routine(pastoral_districts_dir, export_dir_path, zonal_dir, rainfall_dir, finish_date,
                  prop_dist_dict, prop_tag_dict, zonal_stats_ready_dir):
+
+    print("Transferring plots to working drive")
+    if zonal_stats_ready_dir:
+        print(zonal_stats_ready_dir)
     prop_output = '{0}\\{1}'.format(export_dir_path, 'prop_output')
     if not os.path.exists(prop_output):
         print('Create the following directory:')
@@ -245,11 +258,13 @@ def main_routine(pastoral_districts_dir, export_dir_path, zonal_dir, rainfall_di
 
     prop_dir_path = glob_dir_fn(zonal_dir, export_dir_path, prop_output, '_fc_zonal_stats', prop_list, year)
     prop_dir_path = glob_dir_fn(rainfall_dir, export_dir_path, prop_output, '_rain_zonal_stats', prop_list, year)
-    glob_plot_dir_fn(export_dir_path, 'All_B*.png', year, 'final_plots', 'All_Bands', prop_dir_path)
-    glob_plot_dir_fn(export_dir_path, 'BG*.png', year, 'final_plots', 'Bare_Ground', prop_dir_path)
+    #glob_plot_dir_fn(export_dir_path, 'All_B*.png', year, 'final_plots', 'All_Bands', prop_dir_path)
+    # glob_plot_dir_fn(export_dir_path, 'BG*.png', year, 'final_plots', 'Bare_Ground', prop_dir_path)
     glob_plot_dir_fn(export_dir_path, '*.html', year, 'final_interactive', 'Interactive', prop_dir_path)
 
-    glob_dir_1_ha_fn(zonal_stats_ready_dir, prop_list, year)
+    # stops transfer of a shapefile during plotting only pipeline
+    if zonal_stats_ready_dir:
+        glob_dir_1_ha_fn(zonal_stats_ready_dir, prop_list, year)
 
 
 if __name__ == "__main__":

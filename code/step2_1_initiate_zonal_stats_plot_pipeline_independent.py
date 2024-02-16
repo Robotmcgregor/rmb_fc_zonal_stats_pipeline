@@ -44,34 +44,32 @@ warnings.filterwarnings("ignore")
 def get_cmd_args_fn():
     p = argparse.ArgumentParser(description='Produce zonal plots (.jpg) and interactive .html files.')
 
-    p.add_argument('-d', '--directory_zonal', help='The directory containing the zonal stats csv files (default)',
-                   default=r'Z:\Scratch\Zonal_Stats_Pipeline\rmb_fractional_cover_zonal_stats\outputs\20210621_2016\zonal_stats')
+    p.add_argument('-d', '--directory_zonal', help='The directory containing the zonal stats csv files')
 
     p.add_argument('-x', '--export_dir', help='Enter the export directory for all outputs (default)',
                    default=r'Z:\Scratch\Zonal_Stats_Pipeline\rmb_fractional_cover_zonal_stats\outputs')
 
-    p.add_argument('-r', '--rainfall_dir', help='The directory containing the rainfall zonal stats csv files (default)',
-                   default=r'Z:\Scratch\Zonal_Stats_Pipeline\rmb_fractional_cover_zonal_stats\outputs\20210621_2016\rainfall')
+    p.add_argument('-r', '--rainfall_dir', help='The directory containing the rainfall zonal stats csv files')
 
-    p.add_argument('-e', '--end_date', help='Final date for the rainfall data override (i.e.2020-08-31) Do not enter if'
+    p.add_argument('-e', '--end_date', help='Final date for the rainfall data override (i.e.2022-08-31) Do not enter if'
                                             'you want the script to determine the finish date..',
-                   default='2021-06-30')
+                   default='2022-08-31')
 
     p.add_argument('-i', '--rainfall_raster_dir', help='Directory containing the rainfall raster images (default)',
-                   default=r'Z:\Scratch\Zonal_Stats_Pipeline\rainfall')
+                   default=r'Z:\Landsat\rainfall')
 
     p.add_argument('-v', '--visits', help='Path to the latest integrated site shapefile containing previous '
                                           'visit information (default).',
-                   default=r"Z:\Scratch\Zonal_Stats_Pipeline\shapefiles\NT_StarTransect_20200713.shp")
+                   default=r"E:\DEPWS\code\rangeland_monitoring\rmb_fractional_cover_zonal_stats_pipeline_tif\assets\shapefiles\NT_StarTransect_20200713.shp")
 
     p.add_argument('-p', '--pastoral_estate', help='File path to the pastoral estate shapefile.',
-                   default=r"Z:\Scratch\Rob\shapefiles\pastoral_estate.shp")
+                   default=r"E:\DEPWS\code\rangeland_monitoring\rmb_fractional_cover_zonal_stats_pipeline_tif\assets\shapefiles\NT_Pastoral_Estate.shp")
 
     p.add_argument('-m', '--rolling_mean', help='Integer value (i.e 3 or 5) to create the rolling mean of the date.',
                    default=5)
 
     p.add_argument('-pd', '--pastoral_districts_dir', help='File path to the Pastoral_Districts directory.',
-                   default=r"Z:\Scratch\Zonal_Stats_Pipeline\rmb_aggregate_processing\Pastoral_Districts")
+                   default=r"U:\Pastoral_Districts")
 
     cmdargs = p.parse_args()
 
@@ -83,7 +81,39 @@ def get_cmd_args_fn():
     return (cmdargs)
 
 
-def export_dir_fn(export_dir):
+def final_user_fn():
+    """ Create a temporary directory 'user_YYYMMDD_HHMM'.
+
+    @return temp_dir_path: string object containing the newly created directory path.
+    @return final_user: string object containing the user id or the operator.
+    """
+
+    # extract user name
+    home_dir = os.path.expanduser("~")
+    _, user = home_dir.rsplit('\\', 1)
+    final_user = user[3:]
+
+    # # create file name based on date and time.
+    # date_time_replace = str(datetime.now()).replace('-', '')
+    # date_time_list = date_time_replace.split(' ')
+    # date_time_list_split = date_time_list[1].split(':')
+    # temp_dir_path = '\\' + str(final_user) + '_' + str(date_time_list[0]) + '_' + str(
+    #     date_time_list_split[0]) + str(date_time_list_split[1])
+
+    # # check if the folder already exists - if False = create directory, if True = return error message zzzz.
+    # try:
+    #     shutil.rmtree(temp_dir_path)
+    #
+    # except:
+    #     print('The following temporary directory will be created: ', temp_dir_path)
+    #     pass
+    # # create folder a temporary folder titled (titled 'tempFolder'
+    # os.makedirs(temp_dir_path)
+
+    return final_user
+
+
+def export_dir_fn(export_dir, final_user):
     """Create an export directory 'YYYMMDD_HHMM' at the location specified in command argument exportDir.
 
     :param export_dir: string object containing the path to the export directory.
@@ -94,7 +124,7 @@ def export_dir_fn(export_dir):
     date_time_replace = str(datetime.now()).replace('-', '')
     date_time_list = date_time_replace.split(' ')
     date_time_list_split = date_time_list[1].split(':')
-    export_dir_path = export_dir + '\\' + str(date_time_list[0]) + '_' + str(date_time_list_split[0]) + str(
+    export_dir_path = export_dir + '\\' + final_user + '_' + str(date_time_list[0]) + '_' + str(date_time_list_split[0]) + str(
         date_time_list_split[1])
 
     # check if the folder already exists - if False = create directory, if True = return error message.
@@ -132,7 +162,10 @@ def create_export_dir_fn(export_dir_path):
     final_inter_dir = export_dir_path + '\\final_interactive'
     os.mkdir(final_inter_dir)
 
-    return plot_dir
+    zonal_stats_output_dir = (export_dir_path + '\\zonal_stats')
+    os.mkdir(zonal_stats_output_dir)
+
+    return plot_dir, zonal_stats_output_dir
 
 
 def glob_create_df(directory, search_criteria):
@@ -212,13 +245,12 @@ def rainfall_start_fin_dates(list_image):
     return rain_start_date, rain_finish_date
 
 
-def main_routine(zonal_dir, export_dir, rainfall_dir, end_date, rainfall_raster_dir, previous_visits,
-                 pastoral_estate, rolling_mean, pastoral_districts_dir, zonal_stats_ready_dir):
+def main_routine():
     """ Created time series plots using matplotlib one per site per tile and interactive time series plots using Boken.
     Plots are sorted based on which tile registered the most amount of zonal stats hits (i.e. limited cloud masking)."""
 
     # read in the command arguments
-    """cmdargs = get_cmd_args_fn()
+    cmdargs = get_cmd_args_fn()
     zonal_dir = cmdargs.directory_zonal
     export_dir = cmdargs.export_dir
     rainfall_dir = cmdargs.rainfall_dir
@@ -227,21 +259,26 @@ def main_routine(zonal_dir, export_dir, rainfall_dir, end_date, rainfall_raster_
     previous_visits = cmdargs.visits
     pastoral_estate = cmdargs.pastoral_estate
     rolling_mean = cmdargs.rolling_mean
-    pastoral_districts_dir = cmdargs.pastoral_districts_dir"""
+    pastoral_districts_dir = cmdargs.pastoral_districts_dir
 
     print('=' * 50)
     print('Initiate plotting')
     print('=' * 50)
+
+    # call the final_user function.
+    final_user = final_user_fn()
+
     # call the export_dir function.
-    # export_dir_path = export_dir_fn(export_dir)
-    export_dir_path = export_dir
+    export_dir_path = export_dir_fn(export_dir, final_user)
+    #export_dir_path = export_dir
     # call the create_export_dir_fn function.
-    # plot_dir = create_export_dir_fn(export_dir_path)
-    plot_dir = "{0}\\plots".format(export_dir_path)
+    plot_dir, zonal_stats_output_dir = create_export_dir_fn(export_dir_path)
+    #plot_dir = "{0}\\plots".format(export_dir_path)
     output_zonal_stats, zonal_file_list = glob_create_df(zonal_dir, '//*.csv')
 
     output_rainfall, rainfall_file_list = glob_create_df(rainfall_dir, '//*.csv')
     list_image = list_dir(rainfall_raster_dir, '.tif')
+    # print("list image: ", list_image)
 
     rain_start_date, rain_finish_date = rainfall_start_fin_dates(list_image)
     print(rain_finish_date)
@@ -273,9 +310,14 @@ def main_routine(zonal_dir, export_dir, rainfall_dir, end_date, rainfall_raster_
         step2_3_interactive_plots.main_routine(export_dir_path, output_zonal_stats, complete_tile,
                                                plot_dir, pastoral_estate, rolling_mean)
 
+    print("About to run step2_4_sort_plots")
     import step2_4_sort_plots
     step2_4_sort_plots.main_routine(export_dir_path, zonal_dir)
 
+    # stops transfer of a shapefile that has not been created under plotting
+    zonal_stats_ready_dir = None
+
+    print("step2_5_file_plots_to_working_drive")
     import step2_5_file_plots_to_working_drive
     step2_5_file_plots_to_working_drive.main_routine(pastoral_districts_dir, export_dir_path, zonal_dir, rainfall_dir,
                                                      finish_date, prop_dist_dict, prop_tag_dict, zonal_stats_ready_dir)

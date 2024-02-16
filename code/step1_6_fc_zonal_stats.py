@@ -95,6 +95,8 @@ def apply_zonal_stats_fn(image_s, no_data, band, shape, uid):
             zs = zonal_stats(src, array, affine=affine, nodata=no_data,
                              stats=['count', 'min', 'max', 'mean', 'median', 'std'], all_touched=False)
 
+
+            print("zs: ", zs)
             # extract image name and append to list
             img_name = str(srci)[-54:-11]
             list_image_name.append(img_name)
@@ -179,22 +181,22 @@ def landsat_correction_fn(output_zonal_stats):
     output_zonal_stats['b3_min'] = output_zonal_stats['b3_min'].replace(0, np.nan)
 
     # band 1
-    output_zonal_stats['b1_min'] = output_zonal_stats['b1_min'] - 100
-    output_zonal_stats['b1_max'] = output_zonal_stats['b1_max'] - 100
-    output_zonal_stats['b1_mean'] = output_zonal_stats['b1_mean'] - 100
-    output_zonal_stats['b1_median'] = output_zonal_stats['b1_median'] - 100
+    output_zonal_stats['b1_min'] = output_zonal_stats['b1_min']# - 100
+    output_zonal_stats['b1_max'] = output_zonal_stats['b1_max']# - 100
+    output_zonal_stats['b1_mean'] = output_zonal_stats['b1_mean']# - 100
+    output_zonal_stats['b1_median'] = output_zonal_stats['b1_median']# - 100
 
     # band 2
-    output_zonal_stats['b2_min'] = output_zonal_stats['b2_min'] - 100
-    output_zonal_stats['b2_max'] = output_zonal_stats['b2_max'] - 100
-    output_zonal_stats['b2_mean'] = output_zonal_stats['b2_mean'] - 100
-    output_zonal_stats['b2_median'] = output_zonal_stats['b2_median'] - 100
+    output_zonal_stats['b2_min'] = output_zonal_stats['b2_min']# - 100
+    output_zonal_stats['b2_max'] = output_zonal_stats['b2_max']# - 100
+    output_zonal_stats['b2_mean'] = output_zonal_stats['b2_mean']# - 100
+    output_zonal_stats['b2_median'] = output_zonal_stats['b2_median']# - 100
 
     # band 3
-    output_zonal_stats['b3_min'] = output_zonal_stats['b3_min'] - 100
-    output_zonal_stats['b3_max'] = output_zonal_stats['b3_max'] - 100
-    output_zonal_stats['b3_mean'] = output_zonal_stats['b3_mean'] - 100
-    output_zonal_stats['b3_median'] = output_zonal_stats['b3_median'] - 100
+    output_zonal_stats['b3_min'] = output_zonal_stats['b3_min']# - 100
+    output_zonal_stats['b3_max'] = output_zonal_stats['b3_max']# - 100
+    output_zonal_stats['b3_mean'] = output_zonal_stats['b3_mean']# - 100
+    output_zonal_stats['b3_median'] = output_zonal_stats['b3_median']# - 100
 
     return output_zonal_stats
 
@@ -208,8 +210,12 @@ def main_routine(temp_dir_path, zonal_stats_ready_dir, no_data, tile, zonal_stat
     # print('step1_6_fc_zonal_stats.py INITIATED.'
 
     # strip Landsat tile label from csv file name.
+    print("tile: ", tile)
     tile_begin = tile[-29:-26]
+    print("tile_begin: ", tile_begin)
     tile_end = tile[-25:-22]
+    print("tile_end: ", tile_end)
+
     complete_tile = tile_begin + tile_end
     print('='*50)
     print('Working on tile: ', complete_tile)
@@ -217,6 +223,7 @@ def main_routine(temp_dir_path, zonal_stats_ready_dir, no_data, tile, zonal_stat
     print('......')
 
     odk_shapefile = zonal_stats_ready_dir + '\\' + complete_tile + '_odk_by_tile.shp'
+    print("odk_shapefile: ", odk_shapefile)
     df = gpd.read_file(odk_shapefile)
 
     shape = odk_shapefile
@@ -239,6 +246,7 @@ def main_routine(temp_dir_path, zonal_stats_ready_dir, no_data, tile, zonal_stat
 
     for band in num_bands:
         # open the list of imagery and read it into memory and call the apply_zonal_stats_fn function
+        print("im_list: ", im_list)
         with open(im_list, 'r') as imagery_list:
 
             # Extract each image path from the image list
@@ -246,6 +254,8 @@ def main_routine(temp_dir_path, zonal_stats_ready_dir, no_data, tile, zonal_stat
 
                 # cleans the file pathway (Windows)
                 image_s = image.rstrip()
+                print("image_s:", image_s)
+
                 im_name_s = image_s[
                            -43:-1]  # May need to change these values depending on whether there is a 2 or 3 in the
                 # name.

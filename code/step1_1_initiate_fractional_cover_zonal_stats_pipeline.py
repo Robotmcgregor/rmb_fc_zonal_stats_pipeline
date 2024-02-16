@@ -141,7 +141,7 @@ def get_cmd_args_fn():
                    default=r'Z:\Landsat\wrs2')
 
     p.add_argument('-n', '--no_data', help="Enter the Landsat Fractional Cover no data value (i.e. 0)",
-                   default=0)
+                   default=255)
 
     p.add_argument('-r', '--rainfall_dir',
                    help="Enter the rainfall image directory path.",
@@ -149,15 +149,20 @@ def get_cmd_args_fn():
 
     p.add_argument('-s1', '--search_criteria1',
                    help="Enter the end name search criteria string for the Fractional cover Landsat images"
-                        "(i.e. 'dilm2_zstdmask.img').", default='dilm2_zstdmask.img')
+                        "(i.e. 'dp0m2_zstdmask.img').", default='dp0m2_zstdmask.img')
 
     p.add_argument('-s2', '--search_criteria2',
                    help="Enter the end name search criteria string for the Fractional cover Landsat images "
-                        "(i.e. 'dilm3_zstdmask.img').", default='dilm3_zstdmask.img')
+                        "(i.e. 'dp0m3_zstdmask.img').", default='dp0m3_zstdmask.img')
 
     p.add_argument('-s3', '--search_criteria3',
                    help="Enter the end name search criteria string for the QLD Rainfall images (i.e. '.tif').",
                    default='.tif')
+
+    p.add_argument('-s4', '--search_criteria4',
+                   help="Enter the end name search criteria string for the Fractional cover Landsat images "
+                        "(i.e. 'dp0m4_zstdmask.img').", default='dp0m4_zstdmask.img')
+
     p.add_argument('-e', '--end_date',
                    help='Final date for the rainfall data override (i.e.2020-08-31) Do not enter if'
                         'you want the script to determine the finish date..',
@@ -339,12 +344,15 @@ def main_routine():
     fc_count = int(cmd_args.image_count)
     image_search_criteria1 = cmd_args.search_criteria1
     image_search_criteria2 = cmd_args.search_criteria2
+    image_search_criteria4 = cmd_args.search_criteria4
     end_file_name = cmd_args.search_criteria3
     previous_visits = cmd_args.visits
     pastoral_estate = cmd_args.pastoral_estate
     rolling_mean = cmd_args.rolling_mean
     end_date = cmd_args.end_date
     pastoral_districts_dir = cmd_args.pastoral_districts_dir
+
+    print("This pipeline is set to work on the new FC files (dp0)")
 
     # call the temporaryDir function.
     temp_dir_path, final_user = temporary_dir_fn()
@@ -363,18 +371,19 @@ def main_routine():
         export_dir_path, rainfall_dir, end_file_name)
 
     import step1_3_collate_odk_apply_1ha_buffer
-    geo_df_52, crs_name_52, geo_df_53, crs_name_53 = step1_3_collate_odk_apply_1ha_buffer.main_routine(
+    geo_df_52, crs_name_52, geo_df_53, crs_name_53, geo_df_54, crs_name_54 = step1_3_collate_odk_apply_1ha_buffer.main_routine(
         directory_odk, export_dir_path, prime_temp_buffer_dir, pastoral_estate)
 
     import step1_4_landsat_tile_grid_identify
-    comp_geo_df52, comp_geo_df53, zonal_stats_ready_dir = step1_4_landsat_tile_grid_identify.main_routine(
-        tile_grid, geo_df_52, geo_df_53, prime_temp_grid_dir)
+    comp_geo_df52, comp_geo_df53, comp_geo_df54, zonal_stats_ready_dir = step1_4_landsat_tile_grid_identify.main_routine(
+        tile_grid, geo_df_52, geo_df_53, geo_df_54, prime_temp_grid_dir)
 
     # call the step1_5_fc_landsat_list.py script.
     import step1_5_fc_landsat_list
     list_sufficient = step1_5_fc_landsat_list.main_routine(
-        export_dir_path, comp_geo_df52, comp_geo_df53, fc_count, landsat_dir, image_search_criteria1,
-        image_search_criteria2)
+        export_dir_path, comp_geo_df52, comp_geo_df53, comp_geo_df54, fc_count, landsat_dir, image_search_criteria1,
+        image_search_criteria2, image_search_criteria4)
+
 
     # define the tile for processing directory.
     tile_for_processing_dir = (tile_status_dir + '\\for_processing')
@@ -405,14 +414,14 @@ def main_routine():
     # --------------------------------------------------- Plots -----------------------------------------------------
 
     """#os.chdir(r'Z:\Scratch\Rob\code\draft\PycharmProjects\fractonal_cover_time_series_plots')
-    cmd = "E:\\DENR\\code\\rangeland_monitoring\\fractional_cover_zonal_stats_pipeline\\code\\step2_1_initiate_zonal_stats_plot_pipeline.py --directory_zonal %s --export_dir %s --rainfall_dir %s --end_date %s --rainfall_raster_dir %s --visits %s --pastoral_estate %s --rolling_mean %s --pastoral_districts_dir %s" % (zonal_stats_output_dir, export_dir_path, rainfall_output_dir, end_date, rainfall_dir, previous_visits, pastoral_estate, rolling_mean, pastoral_districts_dir)
+    cmd = "E:\\DENR\\code\\rangeland_monitoring\\fractional_cover_zonal_stats_pipeline\\code\\step2_1_initiate_zonal_stats_plot_pipeline_independent.py --directory_zonal %s --export_dir %s --rainfall_dir %s --end_date %s --rainfall_raster_dir %s --visits %s --pastoral_estate %s --rolling_mean %s --pastoral_districts_dir %s" % (zonal_stats_output_dir, export_dir_path, rainfall_output_dir, end_date, rainfall_dir, previous_visits, pastoral_estate, rolling_mean, pastoral_districts_dir)
     os.system(cmd)"""
 
     import step2_1_initiate_zonal_stats_plot_pipeline
     step2_1_initiate_zonal_stats_plot_pipeline.main_routine(zonal_stats_output_dir, export_dir_path,
-                                                            rainfall_output_dir,
-                                                            end_date, rainfall_dir, previous_visits, pastoral_estate,
-                                                            rolling_mean, pastoral_districts_dir, zonal_stats_ready_dir)
+                                                                        rainfall_output_dir,
+                                                                        end_date, rainfall_dir, previous_visits, pastoral_estate,
+                                                                        rolling_mean, pastoral_districts_dir, zonal_stats_ready_dir)
 
     """import step2_1_initiate_zonal_stats_plot_pipeline
     step2_1_initiate_zonal_stats_plot_pipeline.main_routine(export_dir_path, previous_visits, pastoral_estate, rolling_mean, rainfall_dir,

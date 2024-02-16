@@ -172,6 +172,11 @@ def projection_file_name_fn(epsg, clean_odk_geo_df):
     elif epsg_int == 32753:
         crs_name = 'WGS84z53'
         crs_output = {'init': 'EPSG:32753'}
+
+    elif epsg_int == 32754:
+        crs_name = 'WGS84z54'
+        crs_output = {'init': 'EPSG:32754'}
+
     elif epsg_int == 3577:
         crs_name = 'Albers'
         crs_output = {'init': 'EPSG:3577'}
@@ -398,6 +403,21 @@ def main_routine(directory_odk, export_dir_path, prime_temp_buffer_dir, pastoral
         prime_temp_buffer_dir = add_site_attribute_fn(prime_temp_buffer_dir, buffer_temp_dir, crs_name,
                                                       pastoral_estate)
 
+        # ------------------------------------------------ EPSG: 32754 -------------------------------------------------
+
+        # set epsg to WGSz52
+        epsg = 32754
+
+        # Project clean_odk_geo_df to WGSz53
+        crs_name, crs_output, projected_df = projection_file_name_fn(epsg, clean_odk_geo_df)
+
+        # Apply a 1ha square buffer to each point.
+        buffer_temp_dir = square_buffer_fn(projected_df, prime_temp_buffer_dir, crs_name)
+
+        # Add attributes (SITE_NAME and PROP_CODE) to geo-DataFrame.
+        prime_temp_buffer_dir = add_site_attribute_fn(prime_temp_buffer_dir, buffer_temp_dir, crs_name,
+                                                      pastoral_estate)
+
     elif len(list_input) == 1:
 
         int_df = single_csv_fn(list_input)
@@ -452,6 +472,23 @@ def main_routine(directory_odk, export_dir_path, prime_temp_buffer_dir, pastoral
         prime_temp_buffer_dir = add_site_attribute_fn(prime_temp_buffer_dir, buffer_temp_dir, crs_name,
                                                       pastoral_estate)
 
+
+        # ------------------------------------------------ EPSG: 32754 -------------------------------------------------
+
+        # set epsg to WGSz52
+        epsg = 32754
+
+        # Project clean_odk_geo_df to WGSz54
+        crs_name, crs_output, projected_df = projection_file_name_fn(epsg, clean_odk_geo_df)
+
+        # Apply a 1ha square buffer to each point.
+        buffer_temp_dir = square_buffer_fn(projected_df, prime_temp_buffer_dir, crs_name)
+
+        # Add attributes (SITE_NAME and PROP_CODE) to geo-DataFrame.
+        prime_temp_buffer_dir = add_site_attribute_fn(prime_temp_buffer_dir, buffer_temp_dir, crs_name,
+                                                      pastoral_estate)
+
+
     else:
 
         print('There are no integrated  sites to be processed.')
@@ -461,6 +498,7 @@ def main_routine(directory_odk, export_dir_path, prime_temp_buffer_dir, pastoral
     list_input = list_ras
 
     if len(list_input) >= 2:
+        print("list input >= 2 triggered")
 
         # run concatenate_df_list_fn function - input = list_input - output = integrated_df.
 
@@ -523,7 +561,27 @@ def main_routine(directory_odk, export_dir_path, prime_temp_buffer_dir, pastoral
         # Concatenate, clean and export geo_df_53
         geo_df_53, crs_name_53 = concatenate_df_fn(prime_temp_buffer_dir, export_dir_path, crs_name)
 
+        # ---------------------------------------------- EPSG: 32754 ---------------------------------------------------
+
+        # set epsg to WGSz54
+        epsg = 32754
+
+        # Project clean_odk_geo_df to WGSz54
+        crs_name, crs_output, projected_df = projection_file_name_fn(epsg, clean_odk_geo_df)
+
+        # Apply a 1ha square buffer to each point.
+        buffer_temp_dir = square_buffer_fn(projected_df, prime_temp_buffer_dir, crs_name)
+
+        # Add attributes (SITE_NAME and PROP_CODE) to geo-DataFrame.
+        prime_temp_buffer_dir = add_site_attribute_fn(prime_temp_buffer_dir, buffer_temp_dir, crs_name,
+                                                      pastoral_estate)
+
+        # Concatenate, clean and export geo_df_54
+        geo_df_54, crs_name_54 = concatenate_df_fn(prime_temp_buffer_dir, export_dir_path, crs_name)
+
+
     elif len(list_input) == 1:
+        print("list input == 1 triggered")
 
         ras_df = single_csv_fn(list_input)
         # rename two column headers so that both the integrated_df and ras_df columns are the
@@ -582,7 +640,29 @@ def main_routine(directory_odk, export_dir_path, prime_temp_buffer_dir, pastoral
         # Concatenate, clean and export geo_df_53
         geo_df_53, crs_name_53 = concatenate_df_fn(prime_temp_buffer_dir, export_dir_path, crs_name)
 
+
+        # ----------------------------------------------- EPSG: 32754 --------------------------------------------------
+
+        # set epsg to WGSz52
+        epsg = 32754
+
+        # Project clean_odk_geo_df to WGSz53
+        crs_name, crs_output, projected_df = projection_file_name_fn(epsg, clean_odk_geo_df)
+
+        # Apply a 1ha square buffer to each point.
+        buffer_temp_dir = square_buffer_fn(projected_df, prime_temp_buffer_dir, crs_name)
+
+        # Add attributes (SITE_NAME and PROP_CODE) to geo-DataFrame.
+        prime_temp_buffer_dir = add_site_attribute_fn(prime_temp_buffer_dir, buffer_temp_dir, crs_name,
+                                                      pastoral_estate)
+
+        # Concatenate, clean and export geo_df_53
+        geo_df_54, crs_name_54 = concatenate_df_fn(prime_temp_buffer_dir, export_dir_path, crs_name)
+
+
     else:
+        print("list_len else triggered")
+        print("len list input: ", len(list_input))
         pass
         # todo uncomment if time trace for ras is useful
         # print('There are no ras sites to be processed.')
@@ -595,7 +675,11 @@ def main_routine(directory_odk, export_dir_path, prime_temp_buffer_dir, pastoral
     crs_name = 'WGS84z53'
     geo_df_53, crs_name_53 = concatenate_df_fn(prime_temp_buffer_dir, export_dir_path, crs_name)
 
-    return geo_df_52, crs_name_52, geo_df_53, crs_name_53
+    # Concatenate, clean and export geo_df_54
+    crs_name = 'WGS84z54'
+    geo_df_54, crs_name_54 = concatenate_df_fn(prime_temp_buffer_dir, export_dir_path, crs_name)
+
+    return geo_df_52, crs_name_52, geo_df_53, crs_name_53, geo_df_54, crs_name_54
 
 
 if __name__ == '__main__':
